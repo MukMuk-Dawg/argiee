@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argie Coffee - Premium Storefront</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+/* ================= SYSTEM DESIGN VARIABLE ROOT & RESET ================= */
+:root {
+    --primary: #006241;
+    --primary-light: #e6f3ed;
+    --primary-dark: #004d33;
+    --bg-main: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #f1f5f9;
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background: var(--bg-main);
+    color: var(--text-main);
+    padding-top: 75px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Custom Scrollbar styling for smooth aesthetics */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ================= MODERN HEADER ================= */
+header{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 6%;
+    border-bottom: 1px solid var(--border-color);
+    z-index:1000;
+}
+
+.logo-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    cursor: pointer;
+}
+
+/* ================= NAVIGATION INTERFACE CONTROLS ================= */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.home-nav-btn {
+    background: transparent;
+    color: var(--text-main);
+    border: 1px solid #cbd5e1;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.home-nav-btn:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.admin-nav-btn {
+    background: transparent;
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.admin-nav-btn:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.admin-nav-btn:active, .home-nav-btn:active {
+    transform: scale(0.96);
+}
+
+/* ================= CLEAN FOCUSED APP LAYOUT ================= */
+.app-container {
+    max-width: 1250px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 24px 4%;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 32px;
+    flex-grow: 1;
+}
+
+/* ================= CATEGORY FILTER TABS ================= */
+.filter-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+.filter-container::-webkit-scrollbar {
+    height: 4px;
+}
+.filter-btn {
+    padding: 8px 18px;
+    background: white;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+.filter-btn:hover {
+    border-color: #cbd5e1;
+    color: var(--text-main);
+}
+.filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 10px rgba(0, 98, 65, 0.15);
+}
+
+/* ================= MENU CONTROL CONTAINER ================= */
+.category-wrapper {
+    margin-bottom: 36px;
+    transition: var(--transition);
+}
+.category-wrapper.hidden {
+    display: none;
+}
+
+.section-title{
+    margin: 0 0 16px;
+    color: var(--primary);
+    font-size:15px;
+    font-weight:700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+}
+
+.card{
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    overflow:hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: var(--transition);
+    opacity: 0;
+    animation: fadeUpEntrance 0.55s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Dynamic filter active state transition trigger */
+.card.filter-animate {
+    animation: filterFadeEntrance 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Staggered card animation sequences on initial build */
+.menu-grid div:nth-child(1) { animation-delay: 0.05s; }
+.menu-grid div:nth-child(2) { animation-delay: 0.1s; }
+.menu-grid div:nth-child(3) { animation-delay: 0.15s; }
+.menu-grid div:nth-child(4) { animation-delay: 0.2s; }
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px -8px rgba(0,0,0,0.08);
+    border-color: #cbd5e1;
+}
+
+.card img{
+    width:100%;
+    height:120px;
+    object-fit:cover;
+    transition: var(--transition);
+}
+.card:hover img {
+    transform: scale(1.05);
+}
+
+.card-content{
+    padding:14px;
+    text-align: center;
+}
+
+.card-content h3 { 
+    font-size: 13.5px; 
+    font-weight: 600; 
+    margin-bottom: 4px; 
+    color: var(--text-main); 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.price{ color: var(--primary); font-weight:700; font-size:15px; margin-bottom: 12px;}
+
+.btn{
+    background: var(--primary); 
+    color:white; 
+    border:none; 
+    padding:8px 14px;
+    border-radius: 20px; 
+    cursor:pointer; 
+    width: 100%; 
+    font-size: 11px; 
+    font-weight: 600;
+    transition: var(--transition);
+}
+.btn:hover { 
+    background: var(--primary-dark); 
+    box-shadow: 0 4px 8px rgba(0, 98, 65, 0.15);
+}
+.btn:active { transform: scale(0.95); }
+
+/* ================= CHECKOUT SIDEBAR COMPONENTS ================= */
+.checkout-sidebar {
+    background: white; 
+    padding: 28px; 
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md); 
+    border: 1px solid var(--border-color); 
+    height: fit-content;
+    position: sticky; 
+    top: 95px;
+}
+
+.checkout-sidebar h3 { 
+    font-size: 16px; 
+    color: var(--text-main); 
+    font-weight: 700; 
+    margin-bottom: 16px; 
+    padding-bottom: 8px; 
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cart-item { 
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    font-size:13px; 
+    padding: 10px 0; 
+    border-bottom: 1px solid var(--border-color);
+    animation: fadeInItem 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cart-controls button{ margin-left:4px; padding:3px 8px; border:none; cursor:pointer; border-radius:4px; font-weight: 600; font-size: 11px; transition: var(--transition); }
+.qty-btn{ background: var(--border-color); color: var(--text-main); }
+.qty-btn:hover { background: #e2e8f0; }
+
+.service-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0; }
+.service-btn { padding: 10px; border: 1px solid #e2e8f0; background: white; border-radius: var(--radius-sm); cursor: pointer; font-weight: 600; font-size: 12px; text-align: center; transition: var(--transition); color: var(--text-muted); }
+.service-btn.active { background: var(--primary-light); border-color: var(--primary); color: var(--primary); box-shadow: var(--shadow-sm); }
+
+#map { width: 100%; height: 130px; border-radius: var(--radius-sm); border: 1px solid #e2e8f0; margin-bottom: 10px; z-index: 1; }
+.distance-select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); font-size: 12px; background: #fff; outline: none; transition: var(--transition); }
+.distance-select:focus { border-color: var(--primary); }
+
+.summary-line { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--text-muted); }
+.total { margin-top: 14px; padding-top: 14px; border-top: 2px dashed #e2e8f0; font-weight: 700; font-size: 18px; display: flex; justify-content: space-between; margin-bottom: 16px; color: var(--text-main); }
+
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; }
+.form-group input { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); font-size: 13px; outline: none; transition: var(--transition); background: #f8fafc; }
+.form-group input:focus { border-color: var(--primary); background: #fff; }
+.checkout-btn { width:100%; padding:12px; background: var(--primary); color:white; border:none; border-radius:30px; cursor:pointer; font-size: 14px; font-weight: 600; transition: var(--transition); box-shadow: 0 4px 12px rgba(0, 98, 65, 0.2); }
+.checkout-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+/* ================= MODERN KEYFRAME ANIMATIONS LAYER ================= */
+@keyframes fadeUpEntrance {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes filterFadeEntrance {
+    from { opacity: 0; transform: scale(0.97) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes fadeInItem {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleModalUp {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ================= TICKET SCREEN OVERLAY ================= */
+#receiptModal{
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.3);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    justify-content:center; align-items:center; z-index: 2000; padding: 20px;
+}
+.receipt-box{ background:white; padding:24px; width:100%; max-width:340px; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); animation: scaleModalUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.receipt-box hr { border: 0; border-top: 1px dashed #e2e8f0; margin: 12px 0; }
+.receipt-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo-group">
+        <div class="logo" onclick="backToHomeMenu()">Argie Coffee</div>
+    </div>
+    <div class="nav-actions">
+        <button class="home-nav-btn" onclick="backToHomeMenu()">🏠 Home Menu</button>
+        <button class="admin-nav-btn" onclick="navigateToAdmin()">⚙️ Admin System</button>
+    </div>
+</header>
+
+<div class="app-container">
+    
+    <div class="storefront-main">
+        
+        <div class="filter-container">
+            <button id="allFilterBtn" class="filter-btn active" onclick="filterCategory('all', this)">✨ All Menu</button>
+            <button class="filter-btn" onclick="filterCategory('espresso', this)">☕ Espresso</button>
+            <button class="filter-btn" onclick="filterCategory('frappes', this)">🧊 Cream Frappes</button>
+            <button class="filter-btn" onclick="filterCategory('non-coffee', this)">🍵 Non-Coffee</button>
+            <button class="filter-btn" onclick="filterCategory('pastries', this)">🥐 Pastries</button>
+        </div>
+
+        <div class="category-wrapper" data-category="espresso">
+            <h2 class="section-title">☕ Espresso Classics</h2>
+            <section class="menu-grid">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Caramel Latte</h3>
+                        <p class="price">₱120</p>
+                        <button class="btn" onclick="add('Caramel Latte',120)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Cold Brew</h3>
+                        <p class="price">₱110</p>
+                        <button class="btn" onclick="add('Cold Brew',110)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Spanish Latte</h3>
+                        <p class="price">₱130</p>
+                        <button class="btn" onclick="add('Spanish Latte',130)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Cafe Americano</h3>
+                        <p class="price">₱95</p>
+                        <button class="btn" onclick="add('Cafe Americano',95)">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="category-wrapper" data-category="frappes">
+            <h2 class="section-title">🧊 Premium Cream Frappes</h2>
+            <section class="menu-grid">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1536256263959-770b48d82b0a?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Matcha Frappe</h3>
+                        <p class="price">₱145</p>
+                        <button class="btn" onclick="add('Matcha Frappe',145)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Dark Choco Frappe</h3>
+                        <p class="price">₱140</p>
+                        <button class="btn" onclick="add('Dark Choco Frappe',140)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://www.julieseatsandtreats.com/wp-content/uploads/2022/05/Java-Chip-Frapp-26-of-32.jpg">
+                    <div class="card-content">
+                        <h3>Java Chip Frappe</h3>
+                        <p class="price">₱150</p>
+                        <button class="btn" onclick="add('Java Chip Frappe',150)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://recipesbyclare.com/assets/images/1745700481890-pr6fy2pw.webp">
+                    <div class="card-content">
+                        <h3>Cookies & Cream</h3>
+                        <p class="price">₱145</p>
+                        <button class="btn" onclick="add('Cookies & Cream',145)">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="category-wrapper" data-category="non-coffee">
+            <h2 class="section-title">🍵 Non-Coffee Specialties</h2>
+            <section class="menu-grid">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Premium Cocoa</h3>
+                        <p class="price">₱115</p>
+                        <button class="btn" onclick="add('Premium Cocoa',115)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1596131490234-c71d62c954e7?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Pure Matcha Latte</h3>
+                        <p class="price">₱125</p>
+                        <button class="btn" onclick="add('Pure Matcha Latte',125)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Iced Berry Tea</h3>
+                        <p class="price">₱110</p>
+                        <button class="btn" onclick="add('Iced Berry Tea',110)">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="category-wrapper" data-category="pastries">
+            <h2 class="section-title">🥐 Oven-Fresh Pastries</h2>
+            <section class="menu-grid">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Butter Croissant</h3>
+                        <p class="price">₱85</p>
+                        <button class="btn" onclick="add('Butter Croissant',85)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1607958996333-41aef7caefaa?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Choco Fudge Muffin</h3>
+                        <p class="price">₱75</p>
+                        <button class="btn" onclick="add('Choco Fudge Muffin',75)">Add to Cart</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=400&auto=format&fit=crop">
+                    <div class="card-content">
+                        <h3>Blueberry Cheesecake</h3>
+                        <p class="price">₱150</p>
+                        <button class="btn" onclick="add('Blueberry Cheesecake',150)">Add to Cart</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="sidebar-wrapper" id="sidebarPanel">
+        <div class="checkout-sidebar" style="position: relative;">
+            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; border: none; padding: 0;">🛒 Order Summary</h3>
+                <button type="button" class="close-sidebar-btn" onclick="closeSidebar()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #666; padding: 5px;">&times;</button>
+            </div>
+
+            <div id="cartList">
+                <p style="text-align:center; color:#888; font-size:12px; padding:10px 0;">Your cart is empty</p>
+            </div>
+
+            <div class="service-toggle">
+                <div class="service-btn active" id="modeDelivery" onclick="changeServiceMode('Delivery')">Delivery</div>
+                <div class="service-btn" id="modePickup" onclick="changeServiceMode('Pickup')">Store Pickup</div>
+            </div>
+
+            <form id="orderForm" onsubmit="handleCheckout(event)">
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="custName" required placeholder="Your Name" value="Maria Santos">
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="custPhone" required placeholder="Mobile Number" value="09171234567">
+                </div>
+
+                <div id="mapContainer">
+                    <div class="form-group">
+                        <label id="locationLabel">Delivery Address</label>
+                        <input type="text" id="custLocation" readonly placeholder="Selecting address...">
+                    </div>
+                    <div id="map"></div>
+                    <div class="form-group">
+                        <label>Select Estimated Delivery Distance</label>
+                        <select class="distance-select" id="distanceSelector" onchange="calculateDeliveryFee(this.value)">
+                            <option value="1.5">Close Range (Within 2 km) — ₱45</option>
+                            <option value="3.5">Standard Range (2 to 4 km) — ₱63</option>
+                            <option value="5.5">Extended Range (4 to 6 km) — ₱87</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="summary-line"><span>Subtotal:</span><span>₱<span id="subtotalLabel">0</span></span></div>
+                <div class="summary-line" id="deliveryFeeRow"><span>Delivery Fee:</span><span>₱<span id="deliveryFeeLabel">45</span></span></div>
+                <div class="total"><span>Grand Total:</span><span>₱<span id="total">0</span></span></div>
+
+                <button type="submit" class="checkout-btn">Place Order</button>
+                <button type="button" class="checkout-btn" style="background:#e2e8f0; color: var(--text-main); margin-top: 10px;" onclick="backToMenu()">Back to Menu</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="receiptModal">
+    <div class="receipt-box">
+        <h2 style="color: var(--primary); text-align:center; margin-bottom: 2px; font-size:18px; font-weight:700;">Argie Coffee</h2>
+        <p style="text-align:center; font-size:11px; color:#64748b; letter-spacing: 1px; font-weight: 500;">ORDER DISPATCH TICKET</p>
+        <hr>
+        <div class="receipt-row"><span><b>Order Code:</b></span><span id="code" style="color: var(--primary); font-weight:700;"></span></div>
+        <div class="receipt-row"><span><b>Status:</b></span><span style="color:#d97706; font-weight:700;">RECEIVED</span></div>
+        <div class="receipt-row"><span><b>Customer:</b></span><span id="rcptCust"></span></div>
+        <div class="receipt-row"><span><b>Fulfillment:</b></span><span id="rcptType"></span></div>
+        <hr>
+        <div id="receiptItems"></div>
+        <hr>
+        <div class="receipt-row" style="font-weight: 700; font-size: 14px; color: var(--text-main);"><span>Grand Total:</span><span>₱<span id="receiptTotal"></span></span></div>
+        <hr>
+        <button type="button" class="checkout-btn" onclick="closeReceiptModal()" style="padding: 8px; font-size: 12px; margin-top: 5px;">Close Receipt</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let cart = [];
+let currentDeliveryFee = 45; 
+let currentServiceMode = 'Delivery';
+let osMap, osMarker;
+
+function setupMapSystem() {
+    const zamboangaLat = 6.9214;
+    const zamboangaLng = 122.0790;
+    osMap = L.map('map', { zoomControl: false }).setView([zamboangaLat, zamboangaLng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(osMap);
+    osMarker = L.marker([zamboangaLat, zamboangaLng], { draggable: true }).addTo(osMap);
+    document.getElementById("custLocation").value = "Zamboanga City Proper, Zamboanga Peninsula";
+}
+
+/* ================= NAVIGATE TO ADMIN BACKOFFICE ================= */
+function navigateToAdmin() {
+    window.location.href = 'admin.html';
+}
+
+/* ================= BACK TO HOME MENU CATALOG FUNCTION ================= */
+function backToHomeMenu() {
+    window.location.href = 'index.html';
+}
+
+/* ================= CATEGORY FILTER BUSINESS LOGIC ================= */
+function filterCategory(category, buttonElement) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    buttonElement.classList.add('active');
+
+    const wrappers = document.querySelectorAll('.category-wrapper');
+    wrappers.forEach(wrapper => {
+        const targetCategory = wrapper.getAttribute('data-category');
+        
+        if (category === 'all' || targetCategory === category) {
+            wrapper.classList.remove('hidden');
+            wrapper.querySelectorAll('.card').forEach(card => {
+                card.classList.add('filter-animate');
+                card.addEventListener('animationend', () => {
+                    card.classList.remove('filter-animate');
+                    card.style.opacity = '1';
+                }, { once: true });
+            });
+        } else {
+            wrapper.classList.add('hidden');
+        }
+    });
+}
+
+function backToMenu() {
+    backToHomeMenu();
+}
+
+function calculateDeliveryFee(val) {
+    let distanceKm = parseFloat(val);
+    currentDeliveryFee = distanceKm <= 2 ? 45 : Math.round(45 + ((distanceKm - 2) * 12));
+    calculateBasketTotals();
+}
+
+function add(name, price){
+    let item = cart.find(i => i.name === name);
+    if(item) { item.qty++; } else { cart.push({name, price, qty:1}); }
+    render();
+}
+
+function increase(i){ cart[i].qty++; render(); }
+function decrease(i){ cart[i].qty--; if(cart[i].qty <= 0) cart.splice(i,1); render(); }
+
+function changeServiceMode(mode) {
+    currentServiceMode = mode;
+    const mapContainer = document.getElementById("mapContainer");
+    const deliveryRow = document.getElementById("deliveryFeeRow");
+    
+    document.getElementById("modeDelivery").classList.toggle("active", mode === 'Delivery');
+    document.getElementById("modePickup").classList.toggle("active", mode === 'Pickup');
+    
+    if(mode === 'Delivery') {
+        mapContainer.style.display = "block";
+        deliveryRow.style.display = "flex";
+        setTimeout(() => { osMap.invalidateSize(); }, 200);
+        calculateDeliveryFee(document.getElementById("distanceSelector").value);
+    } else {
+        mapContainer.style.display = "none";
+        deliveryRow.style.display = "none";
+        currentDeliveryFee = 0;
+    }
+    calculateBasketTotals();
+}
+
+function calculateBasketTotals() {
+    let subtotal = 0;
+    cart.forEach(item => { subtotal += (item.price * item.qty); });
+    let grandTotal = subtotal + (currentServiceMode === 'Delivery' ? currentDeliveryFee : 0);
+    document.getElementById("subtotalLabel").innerText = subtotal;
+    document.getElementById("deliveryFeeLabel").innerText = currentDeliveryFee;
+    document.getElementById("total").innerText = grandTotal;
+    return { subtotal, grandTotal };
+}
+
+function render(){
+    let list = document.getElementById("cartList");
+    list.innerHTML = "";
+    if(cart.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:#888; font-size:12px; padding:10px 0;">Your cart is empty</p>`;
+        calculateBasketTotals();
+        return;
+    }
+    cart.forEach((item,i)=>{
+        list.innerHTML += `
+        <div class="cart-item">
+            <div><b>${item.name}</b> <span style="color:var(--primary); font-weight:600; margin-left:4px;">x${item.qty}</span></div>
+            <div class="cart-controls">
+                <button type="button" class="qty-btn" onclick="decrease(${i})">-</button>
+                <button type="button" class="qty-btn" onclick="increase(${i})">+</button>
+            </div>
+        </div>`;
+    });
+    calculateBasketTotals();
+}
+
+function handleCheckout(e){
+    e.preventDefault();
+    if(cart.length === 0){ alert("Your basket is empty!"); return; }
+
+    let financialBreakdown = calculateBasketTotals();
+    let orderCode = "AC-" + Math.floor(Math.random()*90000+10000);
+
+    let itemsHTML = "";
+    cart.forEach(i=> itemsHTML += `<div class="receipt-row"><span>${i.name} x${i.qty}</span><span>₱${i.price * i.qty}</span></div>`);
+    document.getElementById("code").innerText = orderCode;
+    document.getElementById("rcptCust").innerText = document.getElementById("custName").value;
+    document.getElementById("rcptType").innerText = currentServiceMode;
+    document.getElementById("receiptItems").innerHTML = itemsHTML;
+    document.getElementById("receiptTotal").innerText = financialBreakdown.grandTotal;
+    
+    // 1. Open receipt verification layout modal (stays open permanently until manual exit)
+    document.getElementById("receiptModal").style.display = "flex";
+
+    // 2. Clear current shopping data arrays
+    cart = [];
+    render();
+
+    // 3. Close the sidebar layout instantly
+    closeSidebar();
+}
+
+window.onload = function() {
+    setupMapSystem();
+}
+
+function closeSidebar() {
+    document.getElementById('sidebarPanel').style.display = 'none';
+}
+
+function closeReceiptModal() {
+    document.getElementById("receiptModal").style.display = "none";
+}
+</script>
+</body>
+</html>

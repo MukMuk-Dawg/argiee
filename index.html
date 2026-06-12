@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argie Coffee</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#fff;
+    color:#222;
+}
+
+/* HEADER */
+header{
+    position:fixed;
+    width:100%;
+    top:0;
+    left:0;
+    background:white;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 8%;
+    z-index:1000;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+/* LOGO */
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:20px;
+    font-weight:700;
+    color:#006241;
+}
+
+.logo img{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid #006241;
+}
+
+/* NAV */
+nav{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+nav a, .nav-btn, .info-btn {
+    text-decoration:none;
+    color:#333;
+    font-weight:500;
+    font-size:14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.nav-btn{
+    background: #006241;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.nav-btn:hover {
+    background: #004d33;
+}
+
+.info-btn {
+    color: #006241;
+    font-weight: 600;
+    border-bottom: 2px dashed #006241;
+    padding-bottom: 2px;
+}
+
+.info-btn:hover {
+    color: #004d33;
+    border-bottom-color: #004d33;
+}
+
+/* AUTH & INFO MODAL STYLES */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.auth-modal {
+    background: white;
+    padding: 35px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .auth-modal {
+    transform: translateY(0);
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+
+.auth-modal h2 {
+    color: #006241;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #006241;
+}
+
+.auth-submit {
+    width: 100%;
+    background: #006241;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.auth-submit:hover {
+    background: #004d33;
+}
+
+.auth-toggle {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 13px;
+}
+
+.auth-toggle span {
+    color: #006241;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* DETAILS TABLE */
+.details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.details-table td {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.details-table td:first-child {
+    font-weight: 600;
+    color: #666;
+    width: 40%;
+}
+
+.details-table td:last-child {
+    color: #222;
+}
+
+/* HERO */
+.hero{
+    height:100vh;
+    background:
+    linear-gradient(rgba(0,0,0,.45),rgba(0,0,0,.45)),
+    url('https://images.unsplash.com/photo-1509042239860-f550ce710b93');
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    color:white;
+    padding:0 20px;
+}
+
+.hero-content h1{
+    font-size:4rem;
+    margin-bottom:15px;
+}
+
+.hero-content p{
+    font-size:1.2rem;
+    margin-bottom:30px;
+}
+
+.btn{
+    background:#006241;
+    color:white;
+    padding:14px 30px;
+    border:none;
+    border-radius:30px;
+    text-decoration:none;
+    display:inline-block;
+}
+
+/* SECTIONS */
+.section{
+    padding:80px 8%;
+}
+
+.section-title{
+    text-align:center;
+    font-size:2.5rem;
+    margin-bottom:50px;
+    color:#006241;
+}
+
+/* CARDS */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:25px;
+}
+
+.card{
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 5px 20px rgba(0,0,0,.1);
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+}
+
+.card img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+}
+
+.card-content{
+    padding:20px;
+}
+
+/* STORE */
+.store-section{
+    background:#f8f8f8;
+}
+
+.store-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.store{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+/* FOOTER */
+footer{
+    background:#111;
+    color:white;
+    text-align:center;
+    padding:25px;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+    .hero-content h1{
+        font-size:3rem;
+    }
+}
+
+@media(max-width:768px){
+    .hero-content h1{
+        font-size:2.3rem;
+    }
+
+    .hero-content p{
+        font-size:1rem;
+    }
+
+    .section{
+        padding:60px 5%;
+    }
+
+    .section-title{
+        font-size:2rem;
+    }
+
+    .logo{
+        font-size:18px;
+    }
+
+    .logo img{
+        width:35px;
+        height:35px;
+    }
+}
+
+@media(max-width:480px){
+    .hero-content h1{
+        font-size:1.8rem;
+    }
+
+    .btn{
+        padding:12px 22px;
+        font-size:14px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        <img src="logo.ico" alt="Argie Coffee Logo">
+        <span>Argie Coffee</span>
+    </div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="menu.html">Menu</a>
+        <a href="contact.html">Contact</a>
+        
+        <!-- Account Button Hook Details -->
+        <button id="details-nav-btn" class="info-btn" style="display: none;" onclick="openDetailsModal()">Account Details</button>
+        <button id="auth-nav-btn" class="nav-btn" onclick="openAuthModal()">Login</button>
+    </nav>
+</header>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="authModalOverlay">
+    
+    <!-- LOGIN -->
+    <div class="auth-modal" id="loginView">
+        <button class="close-modal" onclick="closeAuthModal()">&times;</button>
+        <h2>Login</h2>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required placeholder="Enter your password">
+            </div>
+            <button type="submit" class="auth-submit">Sign In</button>
+            <div class="auth-toggle">
+                Don't have an account? <span onclick="switchView('register')">Create Account</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-modal" id="registerView" style="display: none;">
+        <button class="close-modal" onclick="closeAuthModal()">&times;</button>
+        <h2>Create Account</h2>
+        <form id="registerForm" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" required placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" id="regAge" required min="1" max="120" placeholder="25">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="regPhone" required placeholder="09123456789">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="regEmail" required placeholder="example@email.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="regPassword" required placeholder="Create a strong password">
+            </div>
+            <button type="submit" class="auth-submit">Register</button>
+            <div class="auth-toggle">
+                Already have an account? <span onclick="switchView('login')">Login</span>
+            </div>
+        </form>
+    </div>
+
+    <!-- VIEW ACCOUNT DETAILS -->
+    <div class="auth-modal" id="detailsView" style="display: none;">
+        <button class="close-modal" onclick="closeAuthModal()">&times;</button>
+        <h2>Account Details</h2>
+        <table class="details-table">
+            <tr><td>Name:</td><td id="infoName">-</td></tr>
+            <tr><td>Age:</td><td id="infoAge">-</td></tr>
+            <tr><td>Phone:</td><td id="infoPhone">-</td></tr>
+            <tr><td>Email:</td><td id="infoEmail">-</td></tr>
+        </table>
+        <button class="auth-submit" onclick="closeAuthModal()">Close</button>
+    </div>
+</div>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Crafted For Every Coffee Moment</h1>
+        <p>Freshly brewed drinks and handcrafted favorites.</p>
+        <a href="menu.html" class="btn">Explore Menu</a>
+    </div>
+</section>
+
+<section class="section">
+    <h2 class="section-title">Featured Drinks</h2>
+    <div class="cards">
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1517701604599-bb29b565090c">
+            <div class="card-content"><h3>Caramel Latte</h3><p>Smooth espresso blended with rich caramel.</p></div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085">
+            <div class="card-content"><h3>Cold Brew</h3><p>Slow-steeped coffee for a bold flavor.</p></div>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735">
+            <div class="card-content"><h3>Mocha Frappé</h3><p>Chocolate and coffee blended to perfection.</p></div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 Argie Coffee. All Rights Reserved.</p>
+</footer>
+
+<script>
+const modalOverlay = document.getElementById('authModalOverlay');
+const loginView = document.getElementById('loginView');
+const registerView = document.getElementById('registerView');
+const detailsView = document.getElementById('detailsView');
+const authNavBtn = document.getElementById('auth-nav-btn');
+const detailsNavBtn = document.getElementById('details-nav-btn');
+
+function openAuthModal() {
+    modalOverlay.classList.add('active');
+    switchView('login');
+}
+
+function openDetailsModal() {
+    const user = JSON.parse(localStorage.getItem('logged_in_user'));
+    if (user) {
+        document.getElementById('infoName').textContent = user.name;
+        document.getElementById('infoAge').textContent = user.age;
+        document.getElementById('infoPhone').textContent = user.phone;
+        document.getElementById('infoEmail').textContent = user.email;
+        modalOverlay.classList.add('active');
+        switchView('details');
+    }
+}
+
+function closeAuthModal() { modalOverlay.classList.remove('active'); }
+
+function switchView(view) {
+    loginView.style.display = 'none';
+    registerView.style.display = 'none';
+    detailsView.style.display = 'none';
+    if(view === 'login') loginView.style.display = 'block';
+    else if (view === 'register') registerView.style.display = 'block';
+    else if (view === 'details') detailsView.style.display = 'block';
+}
+
+function getUsers() {
+    const users = localStorage.getItem('coffee_users');
+    return users ? JSON.parse(users) : [];
+}
+
+function handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById('regName').value;
+    const age = document.getElementById('regAge').value;
+    const phone = document.getElementById('regPhone').value;
+    const email = document.getElementById('regEmail').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+
+    const users = getUsers();
+    if(users.some(u => u.email === email)) { alert('Email already registered!'); return; }
+
+    const newUser = { name, age, phone, email, password };
+    users.push(newUser);
+    localStorage.setItem('coffee_users', JSON.stringify(users));
+    alert('Account created successfully!');
+    setCurrentUser(newUser);
+    closeAuthModal();
+    document.getElementById('registerForm').reset();
+}
+
+function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+
+    const users = getUsers();
+    const matchUser = users.find(u => u.email === email && u.password === password);
+
+    if(matchUser) {
+        setCurrentUser(matchUser);
+        closeAuthModal();
+        document.getElementById('loginForm').reset();
+    } else {
+        alert('Invalid email or password.');
+    }
+}
+
+function setCurrentUser(user) {
+    if(user) {
+        localStorage.setItem('logged_in_user', JSON.stringify(user));
+        detailsNavBtn.style.display = 'inline-block';
+        authNavBtn.textContent = 'Logout';
+        authNavBtn.setAttribute('onclick', 'handleLogout()');
+    } else {
+        localStorage.removeItem('logged_in_user');
+        detailsNavBtn.style.display = 'none';
+        authNavBtn.textContent = 'Login';
+        authNavBtn.setAttribute('onclick', 'openAuthModal()');
+    }
+}
+
+function handleLogout() { setCurrentUser(null); alert('Logged out successfully.'); }
+
+window.onload = function() {
+    const activeSession = localStorage.getItem('logged_in_user');
+    if(activeSession) setCurrentUser(JSON.parse(activeSession));
+}
+</script>
+</body>
+</html>
